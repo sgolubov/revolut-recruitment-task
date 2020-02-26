@@ -35,7 +35,7 @@ public class AccountRepositoryTest {
 
     /**
      * Here we check that account record is locked and update can't be done
-     * until transaction committed and lock was released
+     * until transaction is committed and lock is released
      */
     @Test
     public void shouldLockRecordForWrite() {

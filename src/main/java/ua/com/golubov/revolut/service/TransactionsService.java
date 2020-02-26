@@ -102,11 +102,11 @@ public class TransactionsService {
         );
     }
 
-    private AccountTransaction mapToTransaction(TopUpReqDto moneyTransferDto) {
+    private AccountTransaction mapToTransaction(TopUpReqDto topUpReqDto) {
         return new AccountTransaction(
-                moneyTransferDto.getToAcc(),
-                moneyTransferDto.getToAcc(),
-                moneyTransferDto.getAmount(),
+                topUpReqDto.getToAcc(),
+                topUpReqDto.getToAcc(),
+                topUpReqDto.getAmount(),
                 TOP_UP,
                 LocalDateTime.now()
         );
