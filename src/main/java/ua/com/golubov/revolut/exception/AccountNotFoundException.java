@@ -1,8 +1,8 @@
 package ua.com.golubov.revolut.exception;
 
-public class AccountNotExistsException extends RuntimeException {
+public class AccountNotFoundException extends RuntimeException {
 
-    public AccountNotExistsException(Long id) {
+    public AccountNotFoundException(Long id) {
         super(String.format("Account with id - %d doesn't exists.", id));
     }
 }

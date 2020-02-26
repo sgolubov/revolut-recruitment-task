@@ -7,7 +7,7 @@ import ua.com.golubov.revolut.domain.Account;
 import ua.com.golubov.revolut.dto.req.AccountReqDto;
 import ua.com.golubov.revolut.dto.resp.CheckBalanceRespDto;
 import ua.com.golubov.revolut.dto.resp.CreateAccountRespDto;
-import ua.com.golubov.revolut.exception.AccountNotExistsException;
+import ua.com.golubov.revolut.exception.AccountNotFoundException;
 import ua.com.golubov.revolut.exception.BrokenBusinessFlowException;
 
 import java.time.LocalDateTime;
@@ -28,7 +28,7 @@ public class AccountService {
         return accountRepository.getAccount(accountId)
                 .map(account ->
                         new CheckBalanceRespDto(account.getId(), account.getBalance(), account.getLatestActivity()))
-                .orElseThrow(() -> new AccountNotExistsException(accountId));
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
     }
 
     public CreateAccountRespDto createAccount(AccountReqDto accountReqDto) {
@@ -47,7 +47,7 @@ public class AccountService {
                     return account;
                 })
                 .map(accountRepository::update)
-                .orElseThrow(() -> new AccountNotExistsException(id));
+                .orElseThrow(() -> new AccountNotFoundException(id));
     }
 
     public List<Account> getAccounts() {

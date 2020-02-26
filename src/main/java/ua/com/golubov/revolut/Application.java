@@ -7,7 +7,7 @@ import ua.com.golubov.revolut.api.AccountApi;
 import ua.com.golubov.revolut.api.TransactionApi;
 import ua.com.golubov.revolut.config.GuiceModule;
 import ua.com.golubov.revolut.db.FlywayMigrator;
-import ua.com.golubov.revolut.exception.AccountNotExistsException;
+import ua.com.golubov.revolut.exception.AccountNotFoundException;
 import ua.com.golubov.revolut.exception.BadRequestException;
 import ua.com.golubov.revolut.exception.BrokenBusinessFlowException;
 import ua.com.golubov.revolut.exception.NotEnoughFundsForTransferException;
@@ -80,7 +80,7 @@ public class Application {
             response.body(exception.getMessage());
         });
 
-        exception(AccountNotExistsException.class, (exception, request, response) -> {
+        exception(AccountNotFoundException.class, (exception, request, response) -> {
             response.status(404);
             response.body(exception.getMessage());
         });

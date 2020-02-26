@@ -1,4 +1,17 @@
+-- accounts
+
 insert into ACCOUNT (id, name, balance)
-values (1, 'Holden Caulfield', 100);
+values (998, 'Holden Caulfield', 100);
 insert into ACCOUNT (id, name, balance)
-values (2, 'John Doe', 200);
+values (999, 'John Doe', 200);
+
+-- transactions
+
+insert into ACCOUNT_TRANSACTION (id, from_acc, to_acc, amount, type)
+values (1995, 998, 998, 1000.50, 'TOP_UP');
+insert into ACCOUNT_TRANSACTION (id, from_acc, to_acc, amount, type)
+values (1996, 999, 999, 7000, 'TOP_UP');
+insert into ACCOUNT_TRANSACTION (id, from_acc, to_acc, amount, type)
+values (1997, 998, 999, 300, 'TRANSFER');
+insert into ACCOUNT_TRANSACTION (id, from_acc, to_acc, amount, type)
+values (1998, 999, 998, 3000, 'TRANSFER');

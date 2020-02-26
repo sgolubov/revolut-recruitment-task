@@ -21,4 +21,10 @@ public class Account {
         this.latestActivity = latestActivity;
     }
 
+    public Account(Long id, String name, BigDecimal balance, LocalDateTime latestActivity) {
+        this.id = id;
+        this.name = name;
+        this.balance = balance;
+        this.latestActivity = latestActivity;
+    }
 }

@@ -25,7 +25,7 @@ public class TransactionsRepository {
     }
 
     public Long addNewTransaction(AccountTransaction accountTransaction) {
-        return jdbi.withHandle(handle -> {
+        return jdbi.withHandle(handle -> handle.inTransaction(h -> {
 
             Long id = handle.createQuery(TRANSACTION_SEQ_QUERY)
                     .mapTo(Long.class)
@@ -38,7 +38,7 @@ public class TransactionsRepository {
                     .execute();
 
             return id;
-        });
+        }));
     }
 
     public List<AccountTransaction> listTransactions(Long accountId) {

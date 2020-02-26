@@ -9,6 +9,7 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.zaxxer.hikari.HikariDataSource;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.h2.H2DatabasePlugin;
 import ua.com.golubov.revolut.Application;
 
 import javax.sql.DataSource;
@@ -46,7 +47,8 @@ public class GuiceModule extends AbstractModule {
     @Singleton
     @Inject
     private Jdbi jdbi(DataSource dataSource) {
-        return Jdbi.create(dataSource);
+        return Jdbi.create(dataSource)
+                .installPlugin(new H2DatabasePlugin());
     }
 
     @Provides

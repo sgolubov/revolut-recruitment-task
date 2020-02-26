@@ -12,7 +12,7 @@ import ua.com.golubov.revolut.dto.req.TopUpReqDto;
 import ua.com.golubov.revolut.dto.resp.AccountTransactionRespDto;
 import ua.com.golubov.revolut.dto.resp.MoneyTransferRespDto;
 import ua.com.golubov.revolut.dto.resp.TopUpRespDto;
-import ua.com.golubov.revolut.exception.AccountNotExistsException;
+import ua.com.golubov.revolut.exception.AccountNotFoundException;
 import ua.com.golubov.revolut.exception.NotEnoughFundsForTransferException;
 
 import java.math.BigDecimal;
@@ -44,9 +44,9 @@ public class TransactionsService {
         return jdbi.withHandle(handle -> handle.inTransaction(h -> {
 
             Account from = accountRepository.getAndLockAccount(h, moneyTransferReqDto.getFromAcc())
-                    .orElseThrow(() -> new AccountNotExistsException(moneyTransferReqDto.getFromAcc()));
+                    .orElseThrow(() -> new AccountNotFoundException(moneyTransferReqDto.getFromAcc()));
             Account to = accountRepository.getAndLockAccount(h, moneyTransferReqDto.getToAcc())
-                    .orElseThrow(() -> new AccountNotExistsException(moneyTransferReqDto.getToAcc()));
+                    .orElseThrow(() -> new AccountNotFoundException(moneyTransferReqDto.getToAcc()));
 
             BigDecimal amount = moneyTransferReqDto.getAmount();
 
@@ -71,7 +71,7 @@ public class TransactionsService {
     public TopUpRespDto topUpAccount(TopUpReqDto topUpReqDto) {
         return jdbi.withHandle(handle -> handle.inTransaction(h -> {
             Account to = accountRepository.getAndLockAccount(h, topUpReqDto.getToAcc())
-                    .orElseThrow(() -> new AccountNotExistsException(topUpReqDto.getToAcc()));
+                    .orElseThrow(() -> new AccountNotFoundException(topUpReqDto.getToAcc()));
 
             BigDecimal balanceAfter = to.getBalance().add(topUpReqDto.getAmount());
 
