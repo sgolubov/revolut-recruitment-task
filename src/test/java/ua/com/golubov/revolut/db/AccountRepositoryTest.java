@@ -1,5 +1,6 @@
 package ua.com.golubov.revolut.db;
 
+import org.assertj.core.data.Offset;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.testing.JdbiRule;
 import org.jdbi.v3.testing.Migration;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,46 +36,66 @@ public class AccountRepositoryTest {
     }
 
     /**
-     * Here we check that account record is locked and update can't be done
+     * Here we check that account record is locked and another update can't be done
      * until transaction is committed and lock is released
      */
     @Test
-    public void shouldLockRecordForWrite() {
-        // Given
-        Long id = 999L;
-        long pause = 1_000L;
-        Account account = new Account(id, "Johnny Doe", new BigDecimal("1000.00"), LocalDateTime.now());
+    public void shouldLockRecordForWrite() throws InterruptedException {
 
-        // When
-        new Thread(() -> jdbi.inTransaction(handle -> {
-            Optional<Account> accountOptional = underTest.getAndLockAccount(handle, id);
-            try {
-                Thread.sleep(pause);
-            } catch (InterruptedException e) {
-                // swallow exception
-            }
+        // Can be executed multiple times to ensure correctness
+        for (int i = 0; i < 1; i++) {
+            // Given
+
+            // Use latch to make sure test iteration is finished before starting the next one
+            CountDownLatch latch = new CountDownLatch(1);
+
+            Long id = 999L;
+            long pause = 1_500L;
+            Account account = new Account(id, "Johnny Doe", new BigDecimal("1000.00"), LocalDateTime.now());
+
+            // When
+            new Thread(() -> jdbi.inTransaction(handle -> {
+                Optional<Account> accountOptional = underTest.getAndLockAccount(handle, id);
+                try {
+                    // keep lock for a moment
+                    Thread.sleep(pause);
+                } catch (InterruptedException e) {
+                    // swallow exception
+                }
+                underTest.update(account);
+                latch.countDown();
+                return accountOptional;
+            })).start();
+
+            // Small pause to eliminate race condition and make sure records were locked by the separate thread
+            Thread.sleep(10);
+
+            account.setName("John Doe Jr.");
+            account.setBalance(new BigDecimal("2000.00"));
+            account.setLatestActivity(LocalDateTime.now());
+
+            long before = System.currentTimeMillis();
             underTest.update(account);
-            return accountOptional;
-        })).start();
+            long after = System.currentTimeMillis();
 
-        account.setName("John Doe Jr.");
-        account.setBalance(new BigDecimal("2000.00"));
-        account.setLatestActivity(LocalDateTime.now());
+            Account updated = underTest.getAccount(id)
+                    .get();
 
-        long before = System.currentTimeMillis();
-        underTest.update(account);
-        long after = System.currentTimeMillis();
+            // Then
 
-        Account updated = underTest.getAccount(id)
-                .get();
+            // check that second update wasn't executed before the first
+            assertThat(after - before)
+                    .isCloseTo(pause, Offset.offset(200L));
 
-        // Then
-        assertThat(after - before)
-                .isGreaterThan(pause);
-        assertThat(updated)
-                .usingRecursiveComparison()
-                .ignoringFields("createdDate")
-                .isEqualTo(account);
+            // check that actual state of the data in db corresponds to second update
+            assertThat(updated)
+                    .usingRecursiveComparison()
+                    .ignoringFields("createdDate")
+                    .isEqualTo(account);
+
+            // now we can proceed to the next iteration
+            latch.await();
+        }
     }
 
     @Test

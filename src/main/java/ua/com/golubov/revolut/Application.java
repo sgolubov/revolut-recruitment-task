@@ -51,8 +51,10 @@ public class Application {
         port(8080);
 
         before("/*", (req, res) -> LOG.info("{}: {}.", req.requestMethod(), req.uri()));
-        after("/*", (req, res) ->
-                LOG.info("Response with status {} returned for request with URI - {}.", res.status(), req.uri()));
+        after("/*", (req, res) -> {
+            res.header("Content-Type", "application/json;charset=utf-8");
+            LOG.info("Response with status {} returned for request with URI - {}.", res.status(), req.uri());
+        });
 
         path("/v1", () -> {
             path("/account", () -> {

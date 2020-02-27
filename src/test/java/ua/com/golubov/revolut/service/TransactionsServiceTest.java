@@ -93,7 +93,7 @@ public class TransactionsServiceTest {
     }
 
     @Test
-    public void shouldFailWhenAccountNotEnoughMoneyForTransfer() {
+    public void shouldFailWhenNotEnoughMoneyForTransfer() {
         // Given
         MoneyTransferReqDto moneyTransferReqDto = new MoneyTransferReqDto();
         moneyTransferReqDto.setAmount(new BigDecimal("5000"));

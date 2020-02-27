@@ -46,7 +46,6 @@ public class AccountServiceTest {
         assertThat(response)
                 .hasFieldOrPropertyWithValue("id", 1L)
                 .hasFieldOrPropertyWithValue("balance", new BigDecimal("1000"));
-
     }
 
     @Test
@@ -77,7 +76,7 @@ public class AccountServiceTest {
 
         // Then
         assertThat(response)
-                .hasFieldOrPropertyWithValue("id", 1);
+                .hasFieldOrPropertyWithValue("id", 1L);
     }
 
     @Test
