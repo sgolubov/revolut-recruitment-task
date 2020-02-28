@@ -1,8 +1,10 @@
 # Revolut Recruitment Task
 
-###Requirements
+### Requirements
 
-Java 11+ installed.
+Java 11+
+
+### Build and run
 
 Run as Docker image:
 
