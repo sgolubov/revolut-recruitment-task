@@ -46,7 +46,7 @@ public class AccountRepositoryTest {
         for (int i = 0; i < 1; i++) {
             // Given
 
-            // Use latch to make sure test iteration is finished before starting the next one
+            // Use latch to make sure record is locked before trying to execute second update
             CountDownLatch latch = new CountDownLatch(1);
 
             Long id = 999L;
@@ -56,6 +56,8 @@ public class AccountRepositoryTest {
             // When
             new Thread(() -> jdbi.inTransaction(handle -> {
                 Optional<Account> accountOptional = underTest.getAndLockAccount(handle, id);
+                // record locked
+                latch.countDown();
                 try {
                     // keep lock for a moment
                     Thread.sleep(pause);
@@ -63,12 +65,11 @@ public class AccountRepositoryTest {
                     // swallow exception
                 }
                 underTest.update(account);
-                latch.countDown();
                 return accountOptional;
             })).start();
 
-            // Small pause to eliminate race condition and make sure records were locked by the separate thread
-            Thread.sleep(10);
+            // now let's try to execute second update while record is locked
+            latch.await();
 
             account.setName("John Doe Jr.");
             account.setBalance(new BigDecimal("2000.00"));
@@ -90,11 +91,11 @@ public class AccountRepositoryTest {
             // check that actual state of the data in db corresponds to second update
             assertThat(updated)
                     .usingRecursiveComparison()
-                    .ignoringFields("createdDate")
+                    .ignoringFieldsOfTypes(LocalDateTime.class)
                     .isEqualTo(account);
 
-            // now we can proceed to the next iteration
-            latch.await();
+            assertThat(updated.getLatestActivity())
+                    .isEqualToIgnoringNanos(account.getLatestActivity());
         }
     }
 
@@ -124,8 +125,11 @@ public class AccountRepositoryTest {
         // Then
         assertThat(updated)
                 .usingRecursiveComparison()
-                .ignoringFields("createdDate")
+                .ignoringFieldsOfTypes(LocalDateTime.class)
                 .isEqualTo(account);
+
+        assertThat(updated.getLatestActivity())
+                .isEqualToIgnoringNanos(account.getLatestActivity());
     }
 
     @Test
