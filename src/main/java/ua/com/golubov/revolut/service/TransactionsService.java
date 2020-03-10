@@ -13,6 +13,7 @@ import ua.com.golubov.revolut.dto.resp.AccountTransactionRespDto;
 import ua.com.golubov.revolut.dto.resp.MoneyTransferRespDto;
 import ua.com.golubov.revolut.dto.resp.TopUpRespDto;
 import ua.com.golubov.revolut.exception.AccountNotFoundException;
+import ua.com.golubov.revolut.exception.BadRequestException;
 import ua.com.golubov.revolut.exception.NotEnoughFundsForTransferException;
 
 import java.math.BigDecimal;
@@ -41,6 +42,9 @@ public class TransactionsService {
     }
 
     public MoneyTransferRespDto executeMoneyTransfer(MoneyTransferReqDto moneyTransferReqDto) {
+        if (moneyTransferReqDto.getToAcc().equals(moneyTransferReqDto.getFromAcc()))
+            throw new BadRequestException("Can't transfer money to the same account.");
+
         return jdbi.withHandle(handle -> handle.inTransaction(h -> {
 
             Account from = accountRepository.getAndLockAccount(h, moneyTransferReqDto.getFromAcc())

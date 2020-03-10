@@ -6,7 +6,7 @@ Java 11+
 
 ### Build and run
 
-Run as Docker image:
+Run as Docker container:
 
 ```
 ./build-and-run.sh
@@ -29,7 +29,7 @@ Please use `Revolut.postman_collection.json` to explore the API. Here is a list 
 
 - /v1/account - POST | Create an account
 - /v1/account/:id - PUT | Update an account
-- /v1/account/:id/balance - GET | Check ballance
+- /v1/account/:id/balance - GET | Check balance
 - /v1/account/list - GET | List accounts
 
 ### Transaction

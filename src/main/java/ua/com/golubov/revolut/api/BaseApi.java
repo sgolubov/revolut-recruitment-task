@@ -11,7 +11,7 @@ import javax.validation.Validator;
 import java.util.Set;
 import java.util.StringJoiner;
 
-public class BaseApi {
+public abstract class BaseApi {
 
     protected static final Logger LOG = LoggerFactory.getLogger(BaseApi.class);
 

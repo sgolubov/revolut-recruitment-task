@@ -14,6 +14,7 @@ import ua.com.golubov.revolut.domain.Account;
 import ua.com.golubov.revolut.dto.req.MoneyTransferReqDto;
 import ua.com.golubov.revolut.dto.req.TopUpReqDto;
 import ua.com.golubov.revolut.exception.AccountNotFoundException;
+import ua.com.golubov.revolut.exception.BadRequestException;
 import ua.com.golubov.revolut.exception.NotEnoughFundsForTransferException;
 
 import java.math.BigDecimal;
@@ -103,6 +104,19 @@ public class TransactionsServiceTest {
         // When-Then
         assertThatThrownBy(() -> underTest.executeMoneyTransfer(moneyTransferReqDto))
                 .isInstanceOf(NotEnoughFundsForTransferException.class);
+    }
+
+    @Test
+    public void shouldFailToExecuteTransferForTheSameAccount() {
+        // Given
+        MoneyTransferReqDto moneyTransferReqDto = new MoneyTransferReqDto();
+        moneyTransferReqDto.setAmount(new BigDecimal("5000"));
+        moneyTransferReqDto.setFromAcc(999L);
+        moneyTransferReqDto.setToAcc(999L);
+
+        // When-Then
+        assertThatThrownBy(() -> underTest.executeMoneyTransfer(moneyTransferReqDto))
+                .isInstanceOf(BadRequestException.class);
     }
 
     @Test
